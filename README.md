@@ -32,6 +32,7 @@ This project is developed as a **Software Engineering course assignment**, focus
 ---
 
 ## 📂 Project Structure
+```
 SpendWise/
 ├── app/
 │ ├── src/
@@ -42,7 +43,7 @@ SpendWise/
 ├── gradle/
 ├── build.gradle
 └── README.md
-
+```
 ---
 
 ## 🚀 How to Run
