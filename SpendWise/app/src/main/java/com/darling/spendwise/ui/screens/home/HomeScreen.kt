@@ -16,14 +16,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darling.spendwise.data.local.entity.TransactionEntity
 import com.darling.spendwise.ui.theme.TurquoisePrimary
-import com.darling.spendwise.viewModel.TransactionViewModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun HomeScreen(viewModel: TransactionViewModel) {
-    val transactions by viewModel.transactions.collectAsState()
+fun HomeScreen() {
+    val transactions = listOf(
+        TransactionEntity(
+            id = 1,
+            amount = 50000.0,
+            type = "Chi tiêu",
+            note = "Ăn sáng",
+            date = System.currentTimeMillis(),
+            categoryId = 1,
+            walletId = 1
+        ),
+        TransactionEntity(
+            id = 2,
+            amount = 200000.0,
+            type = "Thu nhập",
+            note = "Lương part-time",
+            date = System.currentTimeMillis(),
+            categoryId = 2,
+            walletId = 1
+        )
+    )
 
     Scaffold(
         topBar = {

@@ -17,7 +17,6 @@ import com.darling.spendwise.ui.screens.home.HomeScreen
 import com.darling.spendwise.ui.screens.chart.ChartScreen
 import com.darling.spendwise.ui.screens.report.ReportScreen
 import com.darling.spendwise.ui.screens.profile.ProfileScreen
-import com.darling.spendwise.viewModel.TransactionViewModel
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PieChart
@@ -32,7 +31,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 }
 
 @Composable
-fun MainNavigation(transactionViewModel: TransactionViewModel) {
+fun MainNavigation() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -77,13 +76,13 @@ fun MainNavigation(transactionViewModel: TransactionViewModel) {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(viewModel = transactionViewModel)
+                HomeScreen(/*viewModel = transactionViewModel*/)
             }
             composable(Screen.Chart.route) {
-                ChartScreen(viewModel = transactionViewModel)
+                ChartScreen(/*viewModel = transactionViewModel*/)
             }
             composable(Screen.Report.route) {
-                ReportScreen(viewModel = transactionViewModel)
+                ReportScreen(/*viewModel = transactionViewModel*/)
             }
             composable(Screen.Profile.route) {
                 ProfileScreen()

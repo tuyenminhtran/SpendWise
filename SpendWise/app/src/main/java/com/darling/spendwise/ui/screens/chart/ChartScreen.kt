@@ -11,10 +11,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darling.spendwise.ui.theme.TurquoisePrimary
-import com.darling.spendwise.viewModel.TransactionViewModel
+
 
 @Composable
-fun ChartScreen(viewModel: TransactionViewModel) {
+fun ChartScreen() {
     var selectedFilter by remember { mutableStateOf("Tháng") }
 
     Column(modifier = Modifier.fillMaxSize()) {

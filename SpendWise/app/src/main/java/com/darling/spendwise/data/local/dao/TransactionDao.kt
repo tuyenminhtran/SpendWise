@@ -1,7 +1,10 @@
 package com.darling.spendwise.data.local.dao
+
 import androidx.room.*
 import com.darling.spendwise.data.local.entity.TransactionEntity
 import kotlinx.coroutines.flow.Flow
+import com.darling.spendwise.data.local.database.AppDatabase
+
 
 @Dao
 interface TransactionDao{

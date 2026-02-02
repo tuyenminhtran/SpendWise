@@ -11,10 +11,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darling.spendwise.ui.theme.TurquoisePrimary
-import com.darling.spendwise.viewModel.TransactionViewModel
+
 
 @Composable
-fun ReportScreen(viewModel: TransactionViewModel) {
+fun ReportScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
         Box(
