@@ -19,7 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.darling.spendwise.ui.theme.AppColors
+
+private val PrimaryColor = Color(0xFF1E88E5)
 
 /* =======================
    CATEGORY DATA
@@ -45,20 +46,9 @@ private val expenseCategories = listOf(
     Category(11, "Ô tô", Icons.Default.DirectionsCar),
     Category(12, "Rượu", Icons.Default.LocalBar),
     Category(13, "Thuốc lá", Icons.Default.SmokingRooms),
-    Category(14, "Thiết bị điện tử", Icons.Default.Computer),
+    Category(14, "Thiết bị", Icons.Default.Computer),
     Category(15, "Du lịch", Icons.Default.Flight),
     Category(16, "Sức khỏe", Icons.Default.FavoriteBorder),
-    Category(17, "Thú cưng", Icons.Default.Pets),
-    Category(18, "Sửa chữa", Icons.Default.Build),
-    Category(19, "Nhà ở", Icons.Default.Home),
-    Category(20, "Nhà", Icons.Default.Weekend),
-    Category(21, "Quà tặng", Icons.Default.CardGiftcard),
-    Category(22, "Quyên góp", Icons.Default.VolunteerActivism),
-    Category(23, "Vé số", Icons.Default.ConfirmationNumber),
-    Category(24, "Ăn vặt", Icons.Default.Fastfood),
-    Category(25, "Trẻ em", Icons.Default.ChildCare),
-    Category(26, "Rau quả", Icons.Default.Eco),
-    Category(27, "Hoa quả", Icons.Default.LocalFlorist)
 )
 
 /* =======================
@@ -70,7 +60,7 @@ private val expenseCategories = listOf(
 fun AddTransactionScreen(
     onBack: () -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
         containerColor = Color.White,
@@ -78,46 +68,40 @@ fun AddTransactionScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(AppColors.Primary)
+                    .background(PrimaryColor)
             ) {
                 // Header
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(onClick = onBack) {
-                        Text(
-                            text = "Hủy",
-                            color = Color.White,
-                            fontSize = 16.sp
-                        )
+                        Text("Hủy", color = Color.White)
                     }
 
                     Text(
                         text = "Thêm giao dịch",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
 
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
                         contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
+                        tint = Color.White
                     )
                 }
 
                 // Tabs
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp)
+                        .padding(16.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White.copy(alpha = 0.2f))
+                        .background(Color.White.copy(alpha = 0.15f))
                 ) {
                     listOf("Chi tiêu", "Thu nhập", "Chuyển khoản")
                         .forEachIndexed { index, text ->
@@ -137,7 +121,7 @@ fun AddTransactionScreen(
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = if (selectedTab == index)
-                                        AppColors.Primary
+                                        PrimaryColor
                                     else Color.White
                                 )
                             }
@@ -145,17 +129,20 @@ fun AddTransactionScreen(
                 }
             }
         }
-    ) { paddingValues ->
+    ) { padding ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(padding),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            items(expenseCategories) { category ->
+            items(
+                items = expenseCategories,
+                key = { it.id }   // giảm lag
+            ) { category ->
                 CategoryItem(category)
             }
         }
@@ -169,28 +156,29 @@ fun AddTransactionScreen(
 @Composable
 private fun CategoryItem(category: Category) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .size(60.dp)
+                .size(64.dp)
                 .clip(CircleShape)
-                .background(AppColors.Primary.copy(alpha = 0.1f)),
+                .background(PrimaryColor.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = category.icon,
-                contentDescription = category.name,
-                tint = AppColors.Primary,
-                modifier = Modifier.size(26.dp)
+                contentDescription = null,
+                tint = PrimaryColor,
+                modifier = Modifier.size(28.dp)
             )
         }
+
+        Spacer(Modifier.height(6.dp))
 
         Text(
             text = category.name,
             fontSize = 12.sp,
-            color = AppColors.TextPrimary,
+            color = Color.DarkGray,
             maxLines = 1
         )
     }
