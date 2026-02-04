@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
 import androidx.compose.material3.Text
 import com.darling.spendwise.ui.navigation.MainNavigation
+import com.darling.spendwise.ui.screens.home.HomeScreen
 import com.darling.spendwise.ui.theme.SpendWiseTheme
 
 class MainActivity : ComponentActivity() {
