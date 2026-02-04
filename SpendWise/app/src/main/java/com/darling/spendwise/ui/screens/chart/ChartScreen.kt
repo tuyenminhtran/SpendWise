@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,18 +26,16 @@ fun ChartScreen() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(TurquoisePrimary)
-                .padding(
-                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 16.dp,
-                    bottom = 32.dp
-                ),
+                .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)) // Thêm dòng này
+                .background(Color(0xFF00BFA6))
+                .padding(vertical = 28.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Chi tiêu",
+                text = "SpendWise",
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
 

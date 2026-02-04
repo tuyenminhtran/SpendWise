@@ -12,9 +12,18 @@ import com.darling.spendwise.ui.screens.home.HomeScreen
 import com.darling.spendwise.ui.screens.profile.ProfileScreen
 import com.darling.spendwise.ui.screens.report.ReportScreen
 
+
+// ================ Điều hướng chính của app ======================
+
+// Tạo NavController
+// Dựng bottom bar
+// Gắn NavHost, nơi chứa các screen
 @Composable
 fun MainNavigation() {
+    // Tạo bộ chuyển hướng
     val navController = rememberNavController()
+
+    // Danh sách các màn xuất hiện ở bottom bar
 
     val bottomItems = listOf(
         Screen.Home,
