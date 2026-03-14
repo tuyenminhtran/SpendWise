@@ -18,10 +18,73 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.collectAsState
+import com.darling.spendwise.viewModel.TransactionViewModel
 import kotlin.math.abs
 
 /* =======================
-   FAKE DATA
+   COLORS & ICONS theo categoryId
+   ======================= */
+
+private val categoryColors = mapOf(
+    1  to Color(0xFFFB8C00),
+    2  to Color(0xFF43A047),
+    3  to Color(0xFF1E88E5),
+    4  to Color(0xFF8E24AA),
+    5  to Color(0xFF00ACC1),
+    6  to Color(0xFFE91E63),
+    7  to Color(0xFF3949AB),
+    8  to Color(0xFF00897B),
+    9  to Color(0xFFFFB300),
+    10 to Color(0xFF6D4C41),
+    11 to Color(0xFF546E7A),
+    12 to Color(0xFFD81B60),
+    13 to Color(0xFF757575),
+    14 to Color(0xFF5E35B1),
+    15 to Color(0xFF039BE5),
+    16 to Color(0xFFE53935)
+)
+
+private val categoryIcons = mapOf(
+    1  to Icons.Default.ShoppingCart,
+    2  to Icons.Default.Restaurant,
+    3  to Icons.Default.Smartphone,
+    4  to Icons.Default.SportsEsports,
+    5  to Icons.Default.School,
+    6  to Icons.Default.ContentCut,
+    7  to Icons.Default.FitnessCenter,
+    8  to Icons.Default.People,
+    9  to Icons.Default.DirectionsBus,
+    10 to Icons.Default.Checkroom,
+    11 to Icons.Default.DirectionsCar,
+    12 to Icons.Default.LocalBar,
+    13 to Icons.Default.SmokingRooms,
+    14 to Icons.Default.Computer,
+    15 to Icons.Default.Flight,
+    16 to Icons.Default.FavoriteBorder
+)
+
+private val categoryNames = mapOf(
+    1  to "Mua sắm",
+    2  to "Đồ ăn",
+    3  to "Điện thoại",
+    4  to "Giải trí",
+    5  to "Giáo dục",
+    6  to "Sắc đẹp",
+    7  to "Thể thao",
+    8  to "Xã hội",
+    9  to "Đi lại",
+    10 to "Quần áo",
+    11 to "Ô tô",
+    12 to "Rượu",
+    13 to "Thuốc lá",
+    14 to "Thiết bị",
+    15 to "Du lịch",
+    16 to "Sức khỏe"
+)
+
+/* =======================
+   MODEL
    ======================= */
 
 data class CategoryExpense(
@@ -32,13 +95,9 @@ data class CategoryExpense(
     val icon: ImageVector
 )
 
-private val demoCategories = listOf(
-    CategoryExpense("Mua sắm", 95.25f, 16_070_000, Color(0xFFFB8C00), Icons.Default.ShoppingCart),
-    CategoryExpense("Giải trí", 4.14f, 700_000, Color(0xFF43A047), Icons.Default.SportsEsports),
-    CategoryExpense("Vé số", 0.59f, 100_000, Color(0xFF8E24AA), Icons.Default.ConfirmationNumber)
-)
-
-private val totalExpense = 16_900_000L
+/* =======================
+   CONSTANTS
+   ======================= */
 
 private val PrimaryBlue = Color(0xFF1E88E5)
 private val PrimaryBlueSoft = Color(0xFFE3F2FD)
@@ -49,9 +108,30 @@ private val PrimaryBlueSoft = Color(0xFFE3F2FD)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChartScreen() {
+fun ChartScreen(viewModel: TransactionViewModel) {
     var selectedTab by remember { mutableStateOf(1) }
-    var selectedPeriod by remember { mutableStateOf("Tháng trước") }
+    val transactions by viewModel.transactions.collectAsState()
+
+    // Lọc chi tiêu
+    val expenseList = transactions.filter { it.type == "expense" }
+    val totalExpense = expenseList.sumOf { it.amount }.toLong()
+
+    // Group theo categoryId → tính % và amount
+    val grouped: List<CategoryExpense> = expenseList
+        .groupBy { it.categoryId }
+        .map { (categoryId, list) ->
+            val amount = list.sumOf { it.amount }.toLong()
+            val percentage = if (totalExpense > 0)
+                (amount * 100f / totalExpense) else 0f
+            CategoryExpense(
+                name       = categoryNames[categoryId] ?: "Khác",
+                percentage = percentage,
+                amount     = amount,
+                color      = categoryColors[categoryId] ?: Color.Gray,
+                icon       = categoryIcons[categoryId] ?: Icons.Default.Category
+            )
+        }
+        .sortedByDescending { it.amount }
 
     Scaffold(
         containerColor = Color.White,
@@ -85,7 +165,6 @@ fun ChartScreen() {
                             tint = Color.White
                         )
                     }
-
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
                         contentDescription = "Calendar",
@@ -93,7 +172,7 @@ fun ChartScreen() {
                     )
                 }
 
-                // Tabs
+                // Tabs Tuần / Tháng / Năm
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -134,88 +213,89 @@ fun ChartScreen() {
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
 
-            // Period selector
+            // Donut chart + legend
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("thg 11 2025", color = Color.Gray, fontSize = 14.sp)
-                    Text("thg 12 2025", color = Color.Gray, fontSize = 14.sp)
-                    Text(
-                        selectedPeriod,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
+                if (totalExpense == 0L) {
+                    // Trạng thái trống
                     Box(
                         modifier = Modifier
-                            .width(120.dp)
-                            .height(3.dp)
-                            .background(PrimaryBlue)
-                            .align(Alignment.CenterEnd)
-                    )
-                }
-            }
-
-            // Donut chart
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(180.dp)
-                            .clip(CircleShape)
-                            .background(PrimaryBlueSoft),
+                            .fillMaxWidth()
+                            .padding(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .background(Color.White),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.PieChart,
+                                contentDescription = null,
+                                tint = Color.LightGray,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Spacer(Modifier.height(12.dp))
                             Text(
-                                text = "+${formatMoney(totalExpense)}",
-                                fontWeight = FontWeight.Bold,
+                                "Chưa có giao dịch",
+                                color = Color.Gray,
                                 fontSize = 16.sp
                             )
                         }
                     }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        demoCategories.forEach { category ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Donut giả
+                        Box(
+                            modifier = Modifier
+                                .size(180.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryBlueSoft),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(12.dp)
-                                        .clip(CircleShape)
-                                        .background(category.color)
+                                Text(
+                                    text = formatMoney(totalExpense),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFFE53935)
                                 )
-                                Column {
-                                    Text(category.name, fontSize = 14.sp)
-                                    Text(
-                                        "${String.format("%.2f", category.percentage)}%",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
+                            }
+                        }
+
+                        // Legend — chỉ hiện top 4
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            grouped.take(4).forEach { category ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(12.dp)
+                                            .clip(CircleShape)
+                                            .background(category.color)
                                     )
+                                    Column {
+                                        Text(
+                                            category.name,
+                                            fontSize = 13.sp,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            "${String.format("%.1f", category.percentage)}%",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.sp,
+                                            color = category.color
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -223,34 +303,43 @@ fun ChartScreen() {
                 }
             }
 
-            // Dots indicator
+            // Divider
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        8.dp,
-                        Alignment.CenterHorizontally
-                    )
-                ) {
-                    repeat(3) { index ->
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (index == 0) PrimaryBlue
-                                    else Color(0xFF90CAF9)
-                                )
-                        )
-                    }
-                }
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = Color(0xFFEEEEEE)
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Chi tiết theo danh mục",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
             }
 
-            // Category list
-            items(demoCategories) { category ->
-                CategoryItem(category)
+            // Danh sách danh mục thật
+            if (grouped.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Không có dữ liệu", color = Color.Gray)
+                    }
+                }
+            } else {
+                items(grouped) { category ->
+                    CategoryItem(category)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        color = Color(0xFFEEEEEE),
+                        thickness = 0.5.dp
+                    )
+                }
             }
         }
     }
@@ -290,33 +379,40 @@ private fun CategoryItem(category: CategoryExpense) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    "${category.name}  ${String.format("%.2f", category.percentage)}%",
-                    fontSize = 16.sp
-                )
+                Text(category.name, fontSize = 15.sp, fontWeight = FontWeight.Medium)
                 Text(
                     formatMoney(category.amount),
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFE53935)
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
 
+            // Progress bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp))
                     .background(Color(0xFFEEEEEE))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(category.percentage / 100f)
                         .fillMaxHeight()
-                        .clip(RoundedCornerShape(4.dp))
+                        .clip(RoundedCornerShape(3.dp))
                         .background(category.color)
                 )
             }
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                "${String.format("%.1f", category.percentage)}%",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
         }
     }
 }
@@ -326,5 +422,5 @@ private fun CategoryItem(category: CategoryExpense) {
    ======================= */
 
 private fun formatMoney(value: Long): String {
-    return "%,d".format(abs(value)).replace(",", ".")
+    return "%,d₫".format(abs(value)).replace(",", ".")
 }

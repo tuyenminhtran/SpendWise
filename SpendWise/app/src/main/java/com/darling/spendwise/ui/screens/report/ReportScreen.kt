@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darling.spendwise.viewModel.TransactionViewModel
 
 /* =======================
    REPORT SCREEN
@@ -52,7 +53,7 @@ private val monthlyData = MonthlyStats(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportScreen() {
+fun ReportScreen(viewModel: TransactionViewModel) {
     var selectedTab by remember { mutableStateOf(0) }
 
     Scaffold(

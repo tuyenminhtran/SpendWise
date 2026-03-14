@@ -1,6 +1,7 @@
 package com.darling.spendwise.ui.navigation
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -21,6 +22,7 @@ import com.darling.spendwise.ui.screens.home.HomeScreen
 import com.darling.spendwise.ui.screens.profile.ProfileScreen
 import com.darling.spendwise.ui.screens.report.ReportScreen
 import com.darling.spendwise.ui.theme.AppColors
+import com.darling.spendwise.viewModel.TransactionViewModel
 
 /* =======================
    BOTTOM NAV ITEMS
@@ -46,7 +48,7 @@ private val bottomNavItems = listOf(
    ======================= */
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(viewModel: TransactionViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
@@ -73,15 +75,16 @@ fun MainNavigation() {
             startDestination = "home",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("home") { HomeScreen() }
-            composable("chart") { ChartScreen() }
+            composable("home") { HomeScreen(viewModel) }
+            composable("chart") { ChartScreen(viewModel) }
             composable("add") {
                 AddTransactionScreen(
+                    viewModel = viewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable("report") { ReportScreen() }
-            composable("profile") { ProfileScreen() }
+            composable("report") { ReportScreen(viewModel) }
+            composable("profile") { ProfileScreen(viewModel) }
         }
     }
 }

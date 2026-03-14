@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darling.spendwise.viewModel.TransactionViewModel
 
 /* =======================
    FAKE DATA
@@ -69,7 +70,7 @@ private val DangerRed = Color(0xFFE53935)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(viewModel: TransactionViewModel) {
     Scaffold(
         containerColor = Color(0xFFF5F5F5),
         topBar = {
