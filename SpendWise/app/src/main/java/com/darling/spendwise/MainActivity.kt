@@ -5,6 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.LocalIndication
 import com.darling.spendwise.data.local.database.AppDatabase
 import com.darling.spendwise.data.repository.TransactionRepository
 import com.darling.spendwise.ui.navigation.MainNavigation
@@ -28,7 +31,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SpendWiseTheme {
-                MainNavigation(viewModel)
+                // Override LocalIndication để dùng Material3 ripple thay vì Material1
+                CompositionLocalProvider(
+                    LocalIndication provides ripple()
+                ) {
+                    MainNavigation(viewModel)
+                }
             }
         }
     }
