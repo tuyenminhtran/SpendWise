@@ -47,15 +47,10 @@ fun HomeScreen(viewModel: TransactionViewModel) {
                 cal.get(Calendar.YEAR) == selectedYear
     }
 
-    val totalExpense = filteredTransactions
-        .filter { it.type == "expense" }
-        .sumOf { it.amount }
-    val totalIncome = filteredTransactions
-        .filter { it.type == "income" }
-        .sumOf { it.amount }
+    val totalExpense = filteredTransactions.filter { it.type == "expense" }.sumOf { it.amount }
+    val totalIncome = filteredTransactions.filter { it.type == "income" }.sumOf { it.amount }
     val balance = totalIncome - totalExpense
 
-    // Group theo ngày, ngày mới nhất lên trên
     val groupedTransactions = filteredTransactions
         .groupBy { transaction ->
             SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -79,12 +74,7 @@ fun HomeScreen(viewModel: TransactionViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Default.Menu, null, tint = Color.White)
-                    Text(
-                        "SpendWise",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Text("SpendWise", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Icon(Icons.Default.Search, null, tint = Color.White)
                         Icon(Icons.Default.CalendarMonth, null, tint = Color.White)
@@ -92,25 +82,16 @@ fun HomeScreen(viewModel: TransactionViewModel) {
                 }
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
-                    Text("$selectedYear", color = Color.White.copy(0.8f),
-                        fontSize = 12.sp, modifier = Modifier.weight(1.5f))
-                    Text("Chi tiêu", color = Color.White.copy(0.8f),
-                        fontSize = 12.sp, modifier = Modifier.weight(1f))
-                    Text("Thu nhập", color = Color.White.copy(0.8f),
-                        fontSize = 12.sp, modifier = Modifier.weight(1f))
-                    Text("Số dư", color = Color.White.copy(0.8f),
-                        fontSize = 12.sp, modifier = Modifier.weight(1f))
+                    Text("$selectedYear", color = Color.White.copy(0.8f), fontSize = 12.sp, modifier = Modifier.weight(1.5f))
+                    Text("Chi tiêu", color = Color.White.copy(0.8f), fontSize = 12.sp, modifier = Modifier.weight(1f))
+                    Text("Thu nhập", color = Color.White.copy(0.8f), fontSize = 12.sp, modifier = Modifier.weight(1f))
+                    Text("Số dư", color = Color.White.copy(0.8f), fontSize = 12.sp, modifier = Modifier.weight(1f))
                 }
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
@@ -122,61 +103,29 @@ fun HomeScreen(viewModel: TransactionViewModel) {
                                 indication = null
                             ) { showMonthPicker = true }
                     ) {
-                        Text(
-                            "Tháng $selectedMonth",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Icon(Icons.Default.ArrowDropDown,
-                            null, tint = Color.White)
+                        Text("Tháng $selectedMonth", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Icon(Icons.Default.ArrowDropDown, null, tint = Color.White)
                     }
-
-                    Text(
-                        text = formatShort(totalExpense.toLong()),
-                        color = Color(0xFFFFCDD2),
-                        fontSize = 11.sp,
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = formatShort(totalIncome.toLong()),
-                        color = Color(0xFFC8E6C9),
-                        fontSize = 11.sp,
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = formatShort(balance.toLong()),
-                        color = Color.White,
-                        fontSize = 11.sp,
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Text(formatShort(totalExpense.toLong()), color = Color(0xFFFFCDD2), fontSize = 11.sp, maxLines = 1, modifier = Modifier.weight(1f))
+                    Text(formatShort(totalIncome.toLong()), color = Color(0xFFC8E6C9), fontSize = 11.sp, maxLines = 1, modifier = Modifier.weight(1f))
+                    Text(formatShort(balance.toLong()), color = Color.White, fontSize = 11.sp, maxLines = 1, modifier = Modifier.weight(1f))
                 }
             }
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
             item {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFE3F2FD))
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth().background(Color(0xFFE3F2FD)).padding(16.dp)
                 ) {
-                    Icon(Icons.Default.Info,
-                        null, tint = Color(0xFF1565C0))
+                    Icon(Icons.Default.Info, null, tint = Color(0xFF1565C0))
                     Spacer(Modifier.width(8.dp))
                     Text(
                         "Sau khi đăng nhập, bạn có thể sao lưu dữ liệu của mình trong thời gian thực!",
-                        color = Color(0xFF1565C0),
-                        fontSize = 13.sp
+                        color = Color(0xFF1565C0), fontSize = 13.sp
                     )
                 }
             }
@@ -184,75 +133,45 @@ fun HomeScreen(viewModel: TransactionViewModel) {
             if (filteredTransactions.isEmpty()) {
                 item {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 64.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.Receipt,
-                                null,
-                                tint = Color.LightGray,
-                                modifier = Modifier.size(64.dp)
-                            )
+                            Icon(Icons.Default.Receipt, null, tint = Color.LightGray, modifier = Modifier.size(64.dp))
                             Spacer(Modifier.height(12.dp))
                             Text("Chưa có giao dịch nào", color = Color.Gray, fontSize = 16.sp)
-                            Text(
-                                "trong tháng $selectedMonth/$selectedYear",
-                                color = Color.LightGray,
-                                fontSize = 14.sp
-                            )
+                            Text("trong tháng $selectedMonth/$selectedYear", color = Color.LightGray, fontSize = 14.sp)
                         }
                     }
                 }
             } else {
                 groupedTransactions.forEach { (date, transactionsOfDay) ->
-
-                    // Header ngày + tổng trong ngày
                     item(key = "header_$date") {
                         val dayTotal = transactionsOfDay.sumOf {
                             if (it.type == "expense") -it.amount else it.amount
                         }
                         val isPositive = dayTotal >= 0
-
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFFF5F5F5))
+                            modifier = Modifier.fillMaxWidth().background(Color(0xFFF5F5F5))
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Text(date, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.Gray)
                             Text(
-                                text = date,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Gray
-                            )
-                            Text(
-                                text = "${if (isPositive) "+" else "-"}${formatMoney(abs(dayTotal.toLong()))}₫",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
+                                "${if (isPositive) "+" else "-"}${formatMoney(abs(dayTotal.toLong()))}₫",
+                                fontSize = 13.sp, fontWeight = FontWeight.Medium,
                                 color = if (isPositive) Color(0xFF43A047) else Color(0xFFE53935)
                             )
                         }
                     }
 
-                    // Transactions của ngày
-                    items(
-                        items = transactionsOfDay,
-                        key = { it.id }
-                    ) { transaction ->
+                    items(items = transactionsOfDay, key = { it.id }) { transaction ->
                         SwipeToDeleteItem(
                             transaction = transaction,
                             onDelete = { viewModel.deleteTransaction(transaction) }
                         )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            color = Color(0xFFE0E0E0),
-                            thickness = 0.5.dp
-                        )
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFE0E0E0), thickness = 0.5.dp)
                     }
                 }
             }
@@ -260,7 +179,7 @@ fun HomeScreen(viewModel: TransactionViewModel) {
     }
 
     if (showMonthPicker) {
-        MonthPickerSheet(
+        MonthPickerDialog(
             currentMonth = selectedMonth,
             currentYear = selectedYear,
             onSelect = { month, year ->
@@ -273,87 +192,81 @@ fun HomeScreen(viewModel: TransactionViewModel) {
     }
 }
 
-/* ================= MONTH PICKER ================= */
+/* ================= MONTH PICKER DIALOG ================= */
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MonthPickerSheet(
+private fun MonthPickerDialog(
     currentMonth: Int,
     currentYear: Int,
     onSelect: (Int, Int) -> Unit,
     onDismiss: () -> Unit
 ) {
     var year by remember { mutableIntStateOf(currentYear) }
+    val maxYear = Calendar.getInstance().get(Calendar.YEAR)
 
-    ModalBottomSheet(
+    AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color.White,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp)
-        ) {
+        shape = RoundedCornerShape(20.dp),
+        title = {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { year-- }) {
                     Icon(Icons.Default.ChevronLeft, null, tint = Color(0xFF1E88E5))
                 }
-                Text("$year", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                IconButton(onClick = { if (year < currentYear) year++ }) {
+                Text("$year", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E88E5))
+                IconButton(onClick = { if (year < maxYear) year++ }) {
                     Icon(
-                        Icons.Default.ChevronRight,
-                        null,
-                        tint = if (year < currentYear) Color(0xFF1E88E5) else Color.LightGray
+                        Icons.Default.ChevronRight, null,
+                        tint = if (year < maxYear) Color(0xFF1E88E5) else Color.LightGray
                     )
                 }
             }
-
-            HorizontalDivider(color = Color(0xFFEEEEEE))
-            Spacer(Modifier.height(16.dp))
-
-            (1..12).toList().chunked(4).forEach { rowMonths ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    rowMonths.forEach { month ->
-                        val isSelected = month == currentMonth && year == currentYear
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(
-                                    if (isSelected) Color(0xFF1E88E5) else Color(0xFFF5F5F5)
+        },
+        text = {
+            Column {
+                HorizontalDivider(color = Color(0xFFEEEEEE))
+                Spacer(Modifier.height(12.dp))
+                (1..12).chunked(4).forEach { rowMonths ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowMonths.forEach { month ->
+                            val isSelected = month == currentMonth && year == currentYear
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(if (isSelected) Color(0xFF1E88E5) else Color(0xFFF5F5F5))
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { onSelect(month, year) }
+                                    .padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    "Thg $month", fontSize = 13.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) Color.White else Color.DarkGray
                                 )
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) { onSelect(month, year) }
-                                .padding(vertical = 14.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "Thg $month",
-                                fontSize = 13.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) Color.White else Color.DarkGray
-                            )
+                            }
                         }
                     }
                 }
             }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Đóng", color = Color.Gray)
+            }
         }
-    }
+    )
 }
 
 /* ================= SWIPE TO DELETE ================= */
@@ -379,19 +292,11 @@ private fun SwipeToDeleteItem(
         enableDismissFromStartToEnd = false,
         backgroundContent = {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFE53935))
-                    .padding(end = 24.dp),
+                modifier = Modifier.fillMaxSize().background(Color(0xFFE53935)).padding(end = 24.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Xóa",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
+                    Icon(Icons.Default.Delete, "Xóa", tint = Color.White, modifier = Modifier.size(28.dp))
                     Spacer(Modifier.height(4.dp))
                     Text("Xóa", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                 }
@@ -454,17 +359,11 @@ private fun TransactionItem(transaction: TransactionEntity) {
     }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+        modifier = Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(color),
+            modifier = Modifier.size(48.dp).clip(CircleShape).background(color),
             contentAlignment = Alignment.Center
         ) {
             Icon(icon, null, tint = Color.White)
@@ -473,31 +372,22 @@ private fun TransactionItem(transaction: TransactionEntity) {
         Spacer(Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = transaction.note,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Text(transaction.note, fontSize = 15.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(2.dp))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (isExpense) "Chi tiêu" else "Thu nhập",
+                    if (isExpense) "Chi tiêu" else "Thu nhập",
                     fontSize = 12.sp,
                     color = if (isExpense) Color(0xFFE53935) else Color(0xFF43A047)
                 )
                 Text("•", fontSize = 12.sp, color = Color.LightGray)
-                // Chỉ hiện giờ vì đã có header ngày rồi
-                Text(text = timeFormatted, fontSize = 12.sp, color = Color.Gray)
+                Text(timeFormatted, fontSize = 12.sp, color = Color.Gray)
             }
         }
 
         Text(
-            text = "${if (isExpense) "-" else "+"}${formatMoney(transaction.amount.toLong())}₫",
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
+            "${if (isExpense) "-" else "+"}${formatMoney(transaction.amount.toLong())}₫",
+            fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
             color = if (isExpense) Color(0xFFE53935) else Color(0xFF43A047)
         )
     }
@@ -505,23 +395,17 @@ private fun TransactionItem(transaction: TransactionEntity) {
 
 /* ================= FORMAT MONEY ================= */
 
-// Số đầy đủ cho transaction item
 private fun formatMoney(value: Long): String {
     return "%,d".format(abs(value)).replace(",", ".")
 }
 
-// Số rút gọn cho header
 private fun formatShort(value: Long): String {
-
     val sign = if (value < 0) "-" else ""
-    val absValue = abs(value)
-
-    val formatted = when {
-        absValue >= 1_000_000_000 -> String.format("%.1f", absValue / 1_000_000_000.0) + "tỷ"
-        absValue >= 1_000_000     -> String.format("%.1f", absValue / 1_000_000.0) + "tr"
-        absValue >= 1_000         -> String.format("%.0f", absValue / 1_000.0) + "k"
-        else -> "%,d".format(absValue).replace(",", ".")
+    val abs = abs(value)
+    return sign + when {
+        abs >= 1_000_000_000 -> String.format("%.1f", abs / 1_000_000_000.0) + "tỷ"
+        abs >= 1_000_000     -> String.format("%.1f", abs / 1_000_000.0) + "tr"
+        abs >= 1_000         -> String.format("%.0f", abs / 1_000.0) + "k"
+        else                 -> "%,d".format(abs).replace(",", ".")
     }
-
-    return sign + formatted
 }
