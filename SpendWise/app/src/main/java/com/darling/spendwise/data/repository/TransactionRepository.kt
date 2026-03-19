@@ -19,4 +19,8 @@ class TransactionRepository(
     suspend fun delete(transaction: TransactionEntity){
         transactionDao.delete(transaction)
     }
+
+    suspend fun deleteAll() {
+        transactionDao.deleteAll()
+    }
 }

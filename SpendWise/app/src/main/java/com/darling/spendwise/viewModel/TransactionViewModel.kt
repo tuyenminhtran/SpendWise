@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import android.content.Context
+import com.darling.spendwise.utils.exportCsvToDownloads
 
 class TransactionViewModel(
     private val repository: TransactionRepository
@@ -34,6 +36,19 @@ class TransactionViewModel(
     fun deleteTransaction(transaction: TransactionEntity) {
         viewModelScope.launch {
             repository.delete(transaction)
+        }
+    }
+
+    fun deleteAllTransactions() {
+        viewModelScope.launch {
+            repository.deleteAll()
+        }
+    }
+
+    fun exportToCsv(context: android.content.Context) {
+        viewModelScope.launch {
+            val txList = transactions.value
+            exportCsvToDownloads(context, txList)
         }
     }
 }

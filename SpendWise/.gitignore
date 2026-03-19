@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Giấu file cấu hình Firebase
+app/google-services.json

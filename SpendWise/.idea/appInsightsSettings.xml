@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.darling.spendwise" />
+                  <option name="mobileSdkAppId" value="1:331049917189:android:83f2c0d70aca09e25ab56c" />
+                  <option name="projectId" value="spendwise-1f2bc" />
+                  <option name="projectNumber" value="331049917189" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

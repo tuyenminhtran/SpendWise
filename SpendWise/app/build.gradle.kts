@@ -1,8 +1,13 @@
 plugins {
+
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.kapt")
+
+    // FireBase
+    
+    id("com.google.gms.google-services") version "4.4.4" apply false
 }
 
 android {
@@ -73,5 +78,18 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Thư viện hiển thị ảnh
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
+    //
+    implementation("androidx.core:core-ktx:1.13.1")
+
+    // FireBase
+    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-analytics")
+
+    // google sign in
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 }

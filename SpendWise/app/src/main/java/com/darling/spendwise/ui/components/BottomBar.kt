@@ -1,3 +1,4 @@
+/*
 package com.darling.spendwise.ui.components
 
 import androidx.compose.foundation.background
@@ -102,4 +103,4 @@ private fun BottomNavItemView(
             fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
         )
     }
-}
+}*/
