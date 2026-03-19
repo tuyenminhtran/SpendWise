@@ -105,6 +105,7 @@ fun MainNavigation(
             composable("profile") {
                 ProfileScreen(
                     viewModel = viewModel,
+                    authViewModel = authViewModel,
                     onNavigate = { route -> navController.navigate(route) },
                     isDarkMode = isDarkMode,
                     onToggleDarkMode = onToggleDarkMode

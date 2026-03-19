@@ -1,14 +1,13 @@
 package com.darling.spendwise.viewModel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import com.darling.spendwise.data.repository.AuthRepository
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 sealed class AuthState {
     object Idle : AuthState()
@@ -17,73 +16,58 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState()
 }
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val auth = FirebaseAuth.getInstance()
+    // ViewModel chỉ biết Repository, không biết Firebase
+    private val repository = AuthRepository(application.applicationContext)
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+
     val authState: StateFlow<AuthState> = _authState
 
-    val currentUser get() = auth.currentUser
+    val currentUser get() = repository.currentUser
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            try {
-                val result = auth.signInWithEmailAndPassword(email, password).await()
-                result.user?.let { _authState.value = AuthState.Success(it) }
-                    ?: run { _authState.value = AuthState.Error("Đăng nhập thất bại") }
-            } catch (e: Exception) {
-                _authState.value = AuthState.Error(parseError(e.message))
-            }
+            repository.login(email, password).fold(
+                onSuccess = { _authState.value = AuthState.Success(it) },
+                onFailure = { _authState.value = AuthState.Error(parseError(it.message)) }
+            )
         }
     }
 
     fun register(email: String, password: String, displayName: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            try {
-                val result = auth.createUserWithEmailAndPassword(email, password).await()
-                result.user?.let { user ->
-                    // Update display name
-                    val profileUpdate = com.google.firebase.auth.UserProfileChangeRequest.Builder()
-                        .setDisplayName(displayName).build()
-                    user.updateProfile(profileUpdate).await()
-                    _authState.value = AuthState.Success(user)
-                } ?: run { _authState.value = AuthState.Error("Đăng ký thất bại") }
-            } catch (e: Exception) {
-                _authState.value = AuthState.Error(parseError(e.message))
-            }
+            repository.register(email, password, displayName).fold(
+                onSuccess = { _authState.value = AuthState.Success(it) },
+                onFailure = { _authState.value = AuthState.Error(parseError(it.message)) }
+            )
         }
     }
 
     fun signInWithGoogle(idToken: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            try {
-                val credential = GoogleAuthProvider.getCredential(idToken, null)
-                val result = auth.signInWithCredential(credential).await()
-                result.user?.let { _authState.value = AuthState.Success(it) }
-                    ?: run { _authState.value = AuthState.Error("Đăng nhập Google thất bại") }
-            } catch (e: Exception) {
-                _authState.value = AuthState.Error(parseError(e.message))
-            }
+            repository.signInWithGoogle(idToken).fold(
+                onSuccess = { _authState.value = AuthState.Success(it) },
+                onFailure = { _authState.value = AuthState.Error(parseError(it.message)) }
+            )
         }
     }
 
     fun resetPassword(email: String, onResult: (Boolean, String) -> Unit) {
         viewModelScope.launch {
-            try {
-                auth.sendPasswordResetEmail(email).await()
-                onResult(true, "Email đặt lại mật khẩu đã được gửi!")
-            } catch (e: Exception) {
-                onResult(false, parseError(e.message))
-            }
+            repository.resetPassword(email).fold(
+                onSuccess = { onResult(true, "Email đặt lại mật khẩu đã được gửi!") },
+                onFailure = { onResult(false, parseError(it.message)) }
+            )
         }
     }
 
     fun logout() {
-        auth.signOut()
+        repository.logout()
         _authState.value = AuthState.Idle
     }
 

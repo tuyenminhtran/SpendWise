@@ -28,12 +28,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.darling.spendwise.utils.UserPreferences
 import com.darling.spendwise.utils.exportCsvToDownloads
+import com.darling.spendwise.viewModel.AuthViewModel
 import com.darling.spendwise.viewModel.TransactionViewModel
 import kotlinx.coroutines.launch
 
-private val Primary    = Color(0xFF1565C0)
-private val ExpenseRed = Color(0xFFE53935)
-private val IncomeGreen= Color(0xFF43A047)
+private val Primary     = Color(0xFF1565C0)
+private val ExpenseRed  = Color(0xFFE53935)
+private val IncomeGreen = Color(0xFF43A047)
 private val HeaderGradient = Brush.linearGradient(
     colors = listOf(Color(0xFF1565C0), Color(0xFF1E88E5), Color(0xFF42A5F5))
 )
@@ -52,6 +53,7 @@ data class ProfileMenuItem(
 @Composable
 fun ProfileScreen(
     viewModel: TransactionViewModel,
+    authViewModel: AuthViewModel,
     onNavigate: (String) -> Unit,
     isDarkMode: Boolean,
     onToggleDarkMode: (Boolean) -> Unit
@@ -61,27 +63,34 @@ fun ProfileScreen(
     val transactions by viewModel.transactions.collectAsState()
     val userPrefs = remember { UserPreferences(context) }
 
-    // Colors theo dark/light
+    // Firebase user
+    val firebaseUser = authViewModel.currentUser
+    val isLoggedIn = firebaseUser != null
+
     val bgColor       = if (isDarkMode) Color(0xFF0F1923) else Color(0xFFF0F4F8)
     val cardColor     = if (isDarkMode) Color(0xFF1A2633) else Color.White
     val textPrimary   = if (isDarkMode) Color(0xFFE8EDF1) else Color(0xFF1A1A2E)
     val textSecondary = if (isDarkMode) Color(0xFF9BABBF) else Color(0xFF6B7280)
     val dividerColor  = if (isDarkMode) Color(0xFF2D3F52) else Color(0xFFEEF2F7)
 
-    var displayName by remember { mutableStateOf(userPrefs.displayName) }
+    // Ưu tiên dùng tên từ Firebase nếu đã login, còn không thì SharedPreferences
+    var displayName by remember {
+        mutableStateOf(firebaseUser?.displayName ?: userPrefs.displayName)
+    }
     var phoneNumber by remember { mutableStateOf(userPrefs.phoneNumber) }
     var avatarUri   by remember { mutableStateOf(userPrefs.avatarUri.ifBlank { null }) }
 
     LaunchedEffect(Unit) {
-        displayName = userPrefs.displayName
+        displayName = firebaseUser?.displayName ?: userPrefs.displayName
         phoneNumber = userPrefs.phoneNumber
         avatarUri   = userPrefs.avatarUri.ifBlank { null }
     }
 
     val totalTx = transactions.size
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showExportResult by remember { mutableStateOf<String?>(null) }
-    var isExporting      by remember { mutableStateOf(false) }
+    var showDeleteDialog  by remember { mutableStateOf(false) }
+    var showLogoutDialog  by remember { mutableStateOf(false) }
+    var showExportResult  by remember { mutableStateOf<String?>(null) }
+    var isExporting       by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = bgColor,
@@ -123,31 +132,75 @@ fun ProfileScreen(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        if (avatarUri != null) {
-                            AsyncImage(
-                                model = avatarUri,
-                                contentDescription = "Avatar",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Icon(Icons.Default.Person, null, tint = Color.White, modifier = Modifier.size(50.dp))
+                        when {
+                            // Ảnh từ Google account
+                            firebaseUser?.photoUrl != null -> {
+                                AsyncImage(
+                                    model = firebaseUser.photoUrl,
+                                    contentDescription = "Avatar",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            // Ảnh local
+                            avatarUri != null -> {
+                                AsyncImage(
+                                    model = avatarUri,
+                                    contentDescription = "Avatar",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            else -> {
+                                Icon(Icons.Default.Person, null, tint = Color.White, modifier = Modifier.size(50.dp))
+                            }
                         }
                     }
+
                     Spacer(Modifier.height(12.dp))
                     Text(displayName, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+
                     if (phoneNumber.isNotBlank()) {
                         Spacer(Modifier.height(4.dp))
                         Text(phoneNumber, fontSize = 13.sp, color = Color.White.copy(0.8f))
                     }
+
+                    // Email Firebase nếu đã login
+                    firebaseUser?.email?.let { email ->
+                        Spacer(Modifier.height(4.dp))
+                        Text(email, fontSize = 12.sp, color = Color.White.copy(0.7f))
+                    }
+
                     Spacer(Modifier.height(8.dp))
+
+                    // Badge trạng thái login
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
-                            .background(Color.White.copy(0.2f))
+                            .background(
+                                if (isLoggedIn) IncomeGreen.copy(0.3f)
+                                else Color.White.copy(0.2f)
+                            )
+                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                                if (!isLoggedIn) onNavigate("login")
+                            }
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     ) {
-                        Text("Chưa đăng nhập", fontSize = 12.sp, color = Color.White.copy(0.9f))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Icon(
+                                if (isLoggedIn) Icons.Default.CloudDone else Icons.Default.CloudOff,
+                                null,
+                                tint = Color.White,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                if (isLoggedIn) "Đã đồng bộ" else "Bấm để đăng nhập",
+                                fontSize = 12.sp, color = Color.White.copy(0.9f)
+                            )
+                        }
                     }
                 }
             }
@@ -159,7 +212,10 @@ fun ProfileScreen(
                     cardColor = cardColor, textPrimary = textPrimary,
                     textSecondary = textSecondary, dividerColor = dividerColor,
                     items = listOf(
-                        ProfileMenuItem("Thông tin cá nhân", "Tên, số điện thoại, ảnh đại diện", Icons.Default.Person, onClick = { onNavigate("edit_profile") }),
+                        ProfileMenuItem(
+                            "Thông tin cá nhân", "Tên, số điện thoại, ảnh đại diện",
+                            Icons.Default.Person, onClick = { onNavigate("edit_profile") }
+                        ),
                         ProfileMenuItem("Bảo mật", "Đổi mật khẩu", Icons.Default.Lock),
                         ProfileMenuItem("Thông báo", "Cài đặt nhắc nhở", Icons.Default.Notifications)
                     )
@@ -201,10 +257,9 @@ fun ProfileScreen(
                 )
             }
 
-            /* ===== Giao diện — Dark mode toggle ===== */
+            /* ===== Ứng dụng ===== */
             item { SectionHeader("Ứng dụng", textSecondary) }
             item {
-                // Dark mode row với Switch
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -216,10 +271,7 @@ fun ProfileScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Primary.copy(0.1f)),
+                            modifier = Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(Primary.copy(0.1f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -276,7 +328,7 @@ fun ProfileScreen(
                 )
             }
 
-            /* ===== Đăng xuất ===== */
+            /* ===== Đăng nhập / Đăng xuất ===== */
             item {
                 Spacer(Modifier.height(8.dp))
                 Box(
@@ -286,18 +338,39 @@ fun ProfileScreen(
                         .shadow(2.dp, RoundedCornerShape(16.dp))
                         .clip(RoundedCornerShape(16.dp))
                         .background(cardColor)
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            if (isLoggedIn) showLogoutDialog = true
+                            else onNavigate("login")
+                        }
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         Box(
-                            modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(ExpenseRed.copy(0.1f)),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(
+                                    if (isLoggedIn) ExpenseRed.copy(0.1f) else Primary.copy(0.1f)
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Logout, null, tint = ExpenseRed, modifier = Modifier.size(18.dp))
+                            Icon(
+                                if (isLoggedIn) Icons.Default.Logout else Icons.Default.Login,
+                                null,
+                                tint = if (isLoggedIn) ExpenseRed else Primary,
+                                modifier = Modifier.size(18.dp)
+                            )
                         }
-                        Text("Đăng xuất", fontSize = 15.sp, color = ExpenseRed, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            if (isLoggedIn) "Đăng xuất" else "Đăng nhập",
+                            fontSize = 15.sp,
+                            color = if (isLoggedIn) ExpenseRed else Primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
             }
@@ -316,8 +389,7 @@ fun ProfileScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            containerColor = cardColor,
-            shape = RoundedCornerShape(20.dp),
+            containerColor = cardColor, shape = RoundedCornerShape(20.dp),
             icon = {
                 Box(modifier = Modifier.size(56.dp).clip(CircleShape).background(ExpenseRed.copy(0.1f)), contentAlignment = Alignment.Center) {
                     Icon(Icons.Default.DeleteForever, null, tint = ExpenseRed, modifier = Modifier.size(28.dp))
@@ -333,6 +405,33 @@ fun ProfileScreen(
             },
             dismissButton = {
                 OutlinedButton(onClick = { showDeleteDialog = false }, shape = RoundedCornerShape(10.dp)) {
+                    Text("Hủy", color = textSecondary)
+                }
+            }
+        )
+    }
+
+    // Dialog đăng xuất
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            containerColor = cardColor, shape = RoundedCornerShape(20.dp),
+            icon = {
+                Box(modifier = Modifier.size(56.dp).clip(CircleShape).background(ExpenseRed.copy(0.1f)), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Logout, null, tint = ExpenseRed, modifier = Modifier.size(28.dp))
+                }
+            },
+            title = { Text("Đăng xuất?", fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), color = textPrimary) },
+            text = { Text("Bạn sẽ không còn đồng bộ dữ liệu lên cloud. Dữ liệu local vẫn được giữ lại.", color = textSecondary, textAlign = TextAlign.Center, fontSize = 14.sp) },
+            confirmButton = {
+                Button(
+                    onClick = { authViewModel.logout(); showLogoutDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(10.dp)
+                ) { Text("Đăng xuất", color = Color.White) }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showLogoutDialog = false }, shape = RoundedCornerShape(10.dp)) {
                     Text("Hủy", color = textSecondary)
                 }
             }
