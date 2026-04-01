@@ -1,6 +1,7 @@
 package com.darling.spendwise
 
 import android.app.Activity
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.darling.spendwise.data.local.database.AppDatabase
 import com.darling.spendwise.data.repository.TransactionRepository
@@ -43,7 +45,10 @@ class MainActivity : ComponentActivity() {
             var isDarkMode by remember { mutableStateOf<Boolean>(userPrefs.isDarkMode) }
 
             // AuthViewModel — dùng viewModel() để tự quản lý lifecycle
-            val authViewModel: AuthViewModel = viewModel()
+            val application = LocalContext.current.applicationContext as Application
+            val authViewModel: AuthViewModel = viewModel(
+                factory = ViewModelProvider.AndroidViewModelFactory(application)
+            )
 
             val view = LocalView.current
             LaunchedEffect(isDarkMode) {

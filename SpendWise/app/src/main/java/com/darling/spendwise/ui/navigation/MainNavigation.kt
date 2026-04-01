@@ -117,6 +117,7 @@ fun MainNavigation(
             composable("login") {
                 LoginScreen(
                     authViewModel = authViewModel,
+                    viewModel = viewModel,
                     onLoginSuccess = { navController.popBackStack() },
                     onNavigateToRegister = {
                         navController.navigate("register") {

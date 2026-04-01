@@ -35,6 +35,7 @@ import com.google.android.gms.common.api.ApiException
 import com.darling.spendwise.R
 import com.darling.spendwise.viewModel.AuthState
 import com.darling.spendwise.viewModel.AuthViewModel
+import com.darling.spendwise.viewModel.TransactionViewModel
 
 private val Primary       = Color(0xFF1565C0)
 private val PrimaryLight  = Color(0xFF1E88E5)
@@ -51,6 +52,7 @@ private val HeaderGradient = Brush.linearGradient(
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel,
+    viewModel: TransactionViewModel,
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onSkip: () -> Unit
@@ -91,6 +93,7 @@ fun LoginScreen(
     // Observe auth state
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
+            viewModel.syncFromFirestore()
             onLoginSuccess()
             authViewModel.resetState()
         }
