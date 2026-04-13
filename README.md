@@ -39,24 +39,6 @@ Build Tool: Gradle
 
 ---
 
-## Project Structure
-
-```
-SpendWise
-│
-├── data
-│   ├── dao
-│   ├── entity
-│   └── local
-│
-├── ui
-│   ├── screens
-│   └── navigation
-│
-├── viewmodel
-│
-└── MainActivity.kt
-```
 
 ---
 
